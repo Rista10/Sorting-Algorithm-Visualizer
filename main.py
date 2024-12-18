@@ -1,112 +1,197 @@
-from OpenGL.GL import *
-from OpenGL.GLU import *
-from glfw.GLFW import *
-import random
-import time
+# main.py
+import pygame
+import sys
+import glfw
+from OpenGL.GLUT.special import glutInit
+from OpenGL.GLUT import *
 
-# constants
+from utils.window import init_window
+from visualizations.visualizer import SortingVisualizer
+from algorithms.insertion import InsertionSort
+from algorithms.merge import MergeSort
+
+# Constants
 SCREEN_WIDTH = 1024
 SCREEN_HEIGHT = 768
 
-# variables
-array_elements = []
-is_sorted = []
-num_elements = 10
-s_time = 0.5
-comparisons = 0
-
-def init_window():
-    if not glfwInit():
-        return None
+def get_user_input():
+    """Collect user input for visualization parameters using Pygame"""
+    pygame.init()
+    screen = pygame.display.set_mode((500, 600))
+    pygame.display.set_caption('Sorting Visualization Setup')
     
-    window = glfwCreateWindow(SCREEN_WIDTH,SCREEN_HEIGHT,"Sorting ALgorithm Visualizer",None,None)
+    # Colors
+    BACKGROUND_COLOR = (245, 245, 245)
+    INPUT_COLOR = (255, 255, 255)
+    BORDER_COLOR = (100, 100, 100)
+    BUTTON_COLOR = (0, 123, 255)
+    BUTTON_HOVER_COLOR = (30, 144, 255)
+    DROPDOWN_COLOR = (220, 220, 220)
+    TEXT_COLOR = (30, 30, 30)
+    HEADER_COLOR = (0, 123, 255)
 
-    if not window:
-        glfwTerminate()
-        return None
-    
-    glfwMakeContextCurrent(window)
-    glMatrixMode(GL_PROJECTION)
-    glLoadIdentity()
-    gluOrtho2D(0,SCREEN_WIDTH,0,SCREEN_HEIGHT)
-    glMatrixMode(GL_MODELVIEW)
+    # Fonts
+    pygame.font.init()
+    font = pygame.font.Font(pygame.font.match_font('arial'), 28)
+    small_font = pygame.font.Font(pygame.font.match_font('arial'), 20)
+    header_font = pygame.font.Font(pygame.font.match_font('arial'), 36)
 
-    return window
-    
+    # Input fields
+    num_elements_input = ''
+    update_interval_input = ''
+    algorithm_options = ['Insertion Sort', 'Merge Sort']
+    selected_algorithm = algorithm_options[0]
 
-def generate_numbers():
-    global array_elements, is_sorted
-    is_sorted.clear()
-    array_elements.clear()
-    
-    for i in range(num_elements):
-        array_elements.append(random.random() * SCREEN_HEIGHT * 0.8)
-        is_sorted.append(False)
+    # Rectangles for input fields and buttons
+    num_elements_rect = pygame.Rect(150, 140, 200, 40)
+    update_interval_rect = pygame.Rect(150, 210, 200, 40)
+    algorithm_rect = pygame.Rect(150, 280, 200, 40)
+    start_button_rect = pygame.Rect(150, 500, 200, 50)
 
-def draw_bars(x,y):
-    glClear(GL_COLOR_BUFFER_BIT)
-    quad_size = (SCREEN_WIDTH -2 * (num_elements + 1))/num_elements
+    dropdown_active = False
+    active_input = None
 
-    for i in range(num_elements):
-        if(i==x or i==y):
-            glColor3f(1.0,0.0,0.0)
-        elif (is_sorted[i]):
-            glColor3f(0.0,1.0,0.0)
-        else:
-            glColor3f(1.0,1.0,1.0)
+    running = True
 
-        glBegin(GL_POLYGON)
-        glVertex2f(2 + i * (2 + quad_size),0)
-        glVertex2f(2 + i * (2 + quad_size),array_elements[i])
-        glVertex2f(2 + i * (2 + quad_size) + quad_size,array_elements[i])
-        glVertex2f(2 + i * (2 + quad_size) + quad_size,0)
-        glEnd()
+    while running:
+        screen.fill(BACKGROUND_COLOR)
 
-def insertion_sort(window):
-    global comparisons
-    is_sorted[0] = True
-    draw_bars(-1, -1)
-    glfwSwapBuffers(window)  
+        # Header
+        header_text = header_font.render('Sorting Visualizer Setup', True, HEADER_COLOR)
+        screen.blit(header_text, (60, 50))
 
-    for i in range(1, num_elements):
-        key = array_elements[i]
-        j = i - 1
-        while j >= 0 and array_elements[j] > key:
-            draw_bars(j, j + 1)
-            glfwSwapBuffers(window)  
-            time.sleep(s_time)
-            array_elements[j + 1] = array_elements[j]
-            array_elements[j] = key
-            j -= 1
-            comparisons += 1
-            draw_bars(-1,-1)
-            time.sleep(s_time)
+        # Number of elements input
+        pygame.draw.rect(screen, INPUT_COLOR, num_elements_rect)
+        pygame.draw.rect(screen, BORDER_COLOR, num_elements_rect, 2)
+        num_elements_label = small_font.render('Number of Elements:', True, TEXT_COLOR)
+        num_elements_text = font.render(num_elements_input or '50', True, TEXT_COLOR)
+        screen.blit(num_elements_label, (num_elements_rect.x, num_elements_rect.y - 30))
+        screen.blit(num_elements_text, (num_elements_rect.x + 10, num_elements_rect.y + 5))
 
-        array_elements[j+1] = key
-        is_sorted[j+1] = True
-        draw_bars(-1,-1) 
-        time.sleep(s_time)           
+        # Update interval input
+        pygame.draw.rect(screen, INPUT_COLOR, update_interval_rect)
+        pygame.draw.rect(screen, BORDER_COLOR, update_interval_rect, 2)
+        update_interval_label = small_font.render('Update Interval (sec):', True, TEXT_COLOR)
+        update_interval_text = font.render(update_interval_input or '0.5', True, TEXT_COLOR)
+        screen.blit(update_interval_label, (update_interval_rect.x, update_interval_rect.y - 30))
+        screen.blit(update_interval_text, (update_interval_rect.x + 10, update_interval_rect.y + 5))
+
+        # Algorithm selection
+        pygame.draw.rect(screen, INPUT_COLOR, algorithm_rect)
+        pygame.draw.rect(screen, BORDER_COLOR, algorithm_rect, 2)
+        algorithm_label = small_font.render('Select Algorithm:', True, TEXT_COLOR)
+        algo_text = font.render(selected_algorithm, True, TEXT_COLOR)
+        screen.blit(algorithm_label, (algorithm_rect.x, algorithm_rect.y - 30))
+        screen.blit(algo_text, (algorithm_rect.x + 10, algorithm_rect.y + 5))
+
+        # Dropdown options if active
+        if dropdown_active:
+            for i, option in enumerate(algorithm_options):
+                option_rect = pygame.Rect(150, 320 + i * 40, 200, 40)
+                pygame.draw.rect(screen, DROPDOWN_COLOR, option_rect)
+                pygame.draw.rect(screen, BORDER_COLOR, option_rect, 1)
+                option_text = font.render(option, True, TEXT_COLOR)
+                screen.blit(option_text, (option_rect.x + 10, option_rect.y + 5))
+
+        # Start button
+        button_color = BUTTON_COLOR
+        if start_button_rect.collidepoint(pygame.mouse.get_pos()):
+            button_color = BUTTON_HOVER_COLOR
+        pygame.draw.rect(screen, button_color, start_button_rect)
+        start_text = font.render('Start', True, (255, 255, 255))
+        screen.blit(start_text, (start_button_rect.x + 70, start_button_rect.y + 10))
+
+        # Event handling
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                # Check input fields
+                if num_elements_rect.collidepoint(event.pos):
+                    active_input = 'num_elements'
+                elif update_interval_rect.collidepoint(event.pos):
+                    active_input = 'update_interval'
+                elif algorithm_rect.collidepoint(event.pos):
+                    dropdown_active = not dropdown_active
+                elif dropdown_active:
+                    for i, option in enumerate(algorithm_options):
+                        option_rect = pygame.Rect(150, 320 + i * 40, 200, 40)
+                        if option_rect.collidepoint(event.pos):
+                            selected_algorithm = option
+                            dropdown_active = False
+                elif start_button_rect.collidepoint(event.pos):
+                    return {
+                        'num_elements': int(num_elements_input or '50'),
+                        'update_interval': float(update_interval_input or '0.5'),
+                        'algorithm': selected_algorithm
+                    }
+
+            if event.type == pygame.KEYDOWN:
+                if active_input == 'num_elements':
+                    if event.key == pygame.K_BACKSPACE:
+                        num_elements_input = num_elements_input[:-1]
+                    elif event.unicode.isdigit():
+                        num_elements_input += event.unicode
+                elif active_input == 'update_interval':
+                    if event.key == pygame.K_BACKSPACE:
+                        update_interval_input = update_interval_input[:-1]
+                    elif event.unicode.isdigit() or event.unicode == '.':
+                        update_interval_input += event.unicode
+
+        pygame.display.flip()
 
 def main():
-    window = init_window()
+    try:
+        user_config = get_user_input()
+    except Exception:
+        print("Visualization setup cancelled.")
+        return
 
+    window = init_window(SCREEN_WIDTH, SCREEN_HEIGHT, "Sorting Algorithm Visualizer")
     if window is None:
         return
-    
-    generate_numbers()
-    
-    while not glfwWindowShouldClose(window):
-        glfwPollEvents()
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-       
-        insertion_sort(window)
 
-        glfwSwapBuffers(window)
+    glutInit()
 
-    glfwTerminate()
+    visualizer = SortingVisualizer(
+        num_elements=user_config['num_elements'], 
+        screen_width=SCREEN_WIDTH, 
+        screen_height=SCREEN_HEIGHT
+    )
     
+    if user_config['algorithm'] == 'Insertion Sort':
+        visualizer.set_sorter(InsertionSort)
+    else:
+        visualizer.set_sorter(MergeSort)
+
+    last_update_time = glfw.get_time()
+    update_interval = user_config['update_interval']
+    sorting_complete_time = 0
+    final_pause_duration = 3.0  
+
+    while not glfw.window_should_close(window):
+        glfw.poll_events()
+
+        current_time = glfw.get_time()
+
+        if sorting_complete_time > 0:
+            if current_time - sorting_complete_time >= final_pause_duration:
+                break
+            visualizer.draw_bars()
+            glfw.swap_buffers(window)
+            continue
+
+        if current_time - last_update_time >= update_interval:
+            is_complete = visualizer.sorter.step_sort()
+            visualizer.draw_bars()
+            glfw.swap_buffers(window)
+            last_update_time = current_time
+            if is_complete:
+                sorting_complete_time = current_time
+
+    glfw.terminate()
 
 if __name__ == "__main__":
     main()
-
-
