@@ -47,9 +47,7 @@ class SortingVisualizer:
 
         for i in range(len(self.array_elements)):
             # Determine color based on state
-            if i == self.sorter.current_key_index:
-                glColor3f(1.0, 1.0, 0.0)  # Yellow for current key
-            elif i in self.sorter.current_comparing_indices:
+            if i in self.sorter.current_comparing_indices:
                 glColor3f(1.0, 1.0, 0.0)  # Yellow for comparison
             elif self.is_sorted[i]:
                 glColor3f(0.0, 1.0, 0.0)  # Green for sorted

@@ -8,7 +8,6 @@ class BaseSortAlgorithm:
             'sorting_complete': False
         }
         self.current_comparing_indices = (-1, -1)
-        self.current_key_index = -1
         self.temp_array = array.copy()
 
     def step_sort(self):
