@@ -21,9 +21,9 @@ SCREEN_HEIGHT = 768
 def main():
     try:
         user_config = {
-            'num_elements': 10,
-            'algorithm': 'Selection Sort',
-            'update_interval': 0.8
+            'num_elements': 100,
+            'algorithm': 'Insertion Sort',
+            'update_interval': 0.01
         }
     except Exception:
         print("Visualization setup cancelled.")
