@@ -47,3 +47,4 @@ class SelectionSort(BaseSortAlgorithm):
     def mark_sorted_elements(self):
         for k in range(self.sorting_state['i']):
             self.is_sorted[k] = True
+        self.is_sorted[self.sorting_state['i']] = False

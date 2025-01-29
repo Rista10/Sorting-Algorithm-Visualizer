@@ -59,22 +59,7 @@ class SortingVisualizer:
         glVertex2f(0, self.screen_height)
         glEnd()
 
-        # Back button
-        mouse_x, mouse_y = glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT)
-        is_hover = (20 <= mouse_x <= 80 and 
-                   self.screen_height - 45 <= mouse_y <= self.screen_height - 15)
-        
-        if is_hover:
-            glColor3f(*self.colors['hover'])
-        else:
-            glColor3f(*self.colors['white'])
 
-        # Draw back arrow
-        glBegin(GL_TRIANGLES)
-        glVertex2f(30, self.screen_height - 30)  # Arrow point
-        glVertex2f(50, self.screen_height - 40)  # Bottom
-        glVertex2f(50, self.screen_height - 20)  # Top
-        glEnd()
 
         # Draw algorithm name
         glColor3f(*self.colors['white'])
@@ -156,25 +141,3 @@ class SortingVisualizer:
         glPopMatrix()
         glMatrixMode(GL_MODELVIEW)
 
-
-    def draw_back_button(self):
-        # Draw back button
-        glColor3f(*self.colors['white'])
-        glBegin(GL_QUADS)
-        glVertex2f(20, self.screen_height - 60)
-        glVertex2f(80, self.screen_height - 60)
-        glVertex2f(80, self.screen_height)
-        glVertex2f(20, self.screen_height)
-        glEnd()
-
-        # Draw back arrow
-        glColor3f(*self.colors['primary'])
-        glBegin(GL_TRIANGLES)
-        glVertex2f(30, self.screen_height - 30)
-        glVertex2f(50, self.screen_height - 40)
-        glVertex2f(50, self.screen_height - 20)
-        glEnd()
-
-    def check_button_click(self,x, y):
-        if 20 <= x <= 80 and self.screen_height - 60 <= y <= self.screen_height:
-            self.back_button_clicked = True
