@@ -7,9 +7,8 @@ class QuickSort(BaseSortAlgorithm):
         self.sorting_state.update({
             'recursion_stack': [(0, len(array) - 1)],  # Stack of (low, high) ranges
             'partition_state': None,  # Will hold state during partitioning
-            'current_operation': 'start_partition'  # Possible states: start_partition, partitioning, finish_partition
+            'current_operation': 'start_partition',  # Possible states: start_partition, partitioning, finish_partition
         })
-
     def swap(self, i, j):
         self.array[i], self.array[j] = self.array[j], self.array[i]
 
@@ -38,7 +37,8 @@ class QuickSort(BaseSortAlgorithm):
             
             # If we haven't finished scanning the array
             if state['j'] < state['high']:
-                self.current_comparing_indices=(state['j'],state['high'])
+                self.current_comparing_indices = (state['j'], state['high'])
+                self.comparisons += 1
                 if self.array[state['j']] < state['pivot']:
                     state['i'] += 1
                     self.swap(state['i'], state['j'])
