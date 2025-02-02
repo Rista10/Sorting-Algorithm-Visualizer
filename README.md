@@ -4,8 +4,6 @@ A Python-based visualization tool for common sorting algorithms. This project pr
 mainly Quick Sort, Merge Sort, Heap Sort, Insertion Sort and Selection Sort.
 
 
-```
-
 ## Requirements
 
 See `requirements.txt` for a full list of dependencies.
@@ -36,4 +34,3 @@ The visualization window will open, allowing you to:
 2. Adjust the array size and speed
 3. Start/pause/reset the visualization
 4. View the sorting process in real-time
-
