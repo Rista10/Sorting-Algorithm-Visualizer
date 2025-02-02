@@ -26,7 +26,7 @@ class SelectionSort(BaseSortAlgorithm):
             self.sorting_state['i'] +=1
 
             if self.sorting_state['i'] >= len(self.array):
-                self.sorting_state['sorting_completed'] = True
+                self.sorting_state['sorting_complete'] = True
                 self.mark_sorted_elements()
                 return
             
@@ -47,4 +47,3 @@ class SelectionSort(BaseSortAlgorithm):
     def mark_sorted_elements(self):
         for k in range(self.sorting_state['i']):
             self.is_sorted[k] = True
-        self.is_sorted[self.sorting_state['i']] = False

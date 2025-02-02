@@ -51,3 +51,4 @@ class InsertionSort(BaseSortAlgorithm):
     def mark_sorted_elements(self):
         for k in range(self.sorting_state['i']):
             self.is_sorted[k] = True
+        

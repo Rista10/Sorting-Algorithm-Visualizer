@@ -2,6 +2,8 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 from OpenGL.GLUT.fonts import GLUT_BITMAP_HELVETICA_18, GLUT_BITMAP_TIMES_ROMAN_24
+from utils.draw_navbar import draw_navbar
+from utils.draw_text import draw_text
 import random
 
 class SortingVisualizer:
@@ -48,22 +50,6 @@ class SortingVisualizer:
         self.is_sorted = [False] * len(self.array_elements)
         self.array_elements = self.sorter.array
 
-    def draw_navbar(self):
-        """Draw a website-like navigation bar"""
-        # Nav background
-        glColor3f(*self.colors['primary'])
-        glBegin(GL_QUADS)
-        glVertex2f(0, self.screen_height - 60)
-        glVertex2f(self.screen_width, self.screen_height - 60)
-        glVertex2f(self.screen_width, self.screen_height)
-        glVertex2f(0, self.screen_height)
-        glEnd()
-
-
-
-        # Draw algorithm name
-        glColor3f(*self.colors['white'])
-        self.draw_text(f"Algorithm: {self.algorithm_name}", 100, self.screen_height - 35, GLUT_BITMAP_TIMES_ROMAN_24)
 
     def draw_stats_panel(self):
             """Draw statistics panel"""
@@ -78,11 +64,12 @@ class SortingVisualizer:
 
             # Stats text
             curr_algo = "Algorithm: " + self.algorithm_name
-            self.draw_text(curr_algo, 20, self.screen_height - 80, GLUT_BITMAP_TIMES_ROMAN_24)
+            draw_text(curr_algo, 20, self.screen_height - 80, GLUT_BITMAP_TIMES_ROMAN_24)
+            draw_text("Press 'r' to restart the sorting visualization", 800, self.screen_height - 80, GLUT_BITMAP_TIMES_ROMAN_24)
             glColor3f(*self.colors['white'])
-            self.draw_text(f"Comparisons: {self.sorter.comparisons}", 20, self.screen_height - 125, GLUT_BITMAP_HELVETICA_18)
+            draw_text(f"Comparisons: {self.sorter.comparisons}", 20, self.screen_height - 125, GLUT_BITMAP_HELVETICA_18)
             progress = sum(self.is_sorted) / len(self.is_sorted) * 100
-            self.draw_text(f"Progress: {progress:.1f}%", 20, self.screen_height - 150, GLUT_BITMAP_HELVETICA_18)
+            draw_text(f"Progress: {progress:.1f}%", 20, self.screen_height - 150, GLUT_BITMAP_HELVETICA_18)
 
     def draw_bars(self):
         glClear(GL_COLOR_BUFFER_BIT)
@@ -90,6 +77,7 @@ class SortingVisualizer:
         # Ensure array and is_sorted are in sync
         if len(self.array_elements) != len(self.is_sorted):
             self.is_sorted = [False] * len(self.array_elements)
+            
         
         # Draw visualization area background
         glColor3f(0.1, 0.1, 0.1)  # Dark background
@@ -120,24 +108,8 @@ class SortingVisualizer:
             glEnd()
 
         # Draw UI elements
-        self.draw_navbar()
+        draw_navbar()
         self.draw_stats_panel()
 
-    def draw_text(self, text, x, y, font=GLUT_BITMAP_HELVETICA_18):
-        glMatrixMode(GL_PROJECTION)
-        glPushMatrix()
-        glLoadIdentity()
-        gluOrtho2D(0, self.screen_width, 0, self.screen_height)
-        glMatrixMode(GL_MODELVIEW)
-        glPushMatrix()
-        glLoadIdentity()
-        
-        glRasterPos2f(x, y)
-        for char in text:
-            glutBitmapCharacter(font, ord(char))
-        
-        glPopMatrix()
-        glMatrixMode(GL_PROJECTION)
-        glPopMatrix()
-        glMatrixMode(GL_MODELVIEW)
+        glColor3f(*self.colors['white'])  # White color for the text
 
